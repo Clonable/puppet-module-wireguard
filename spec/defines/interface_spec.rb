@@ -1,16 +1,16 @@
 require 'spec_helper'
 
-describe 'wireguard::interface', :type => :define do
+describe 'wireguard::interface', type: :define do
   let(:title) { 'wg0' }
   let(:pre_condition) { 'include wireguard' }
   let :default_params do
     {
-      'address'     => [
+      'address' => [
         '1.1.1.1/24',
-        '2.2.2.2/24'
+        '2.2.2.2/24',
       ],
       'private_key' => 'privatekey',
-      'listen_port' => 52980,
+      'listen_port' => 52_980,
       'ensure'      => 'present',
       'peers'       => [
         {
@@ -21,13 +21,14 @@ describe 'wireguard::interface', :type => :define do
           'PublicKey'    => 'publickey2',
           'AllowedIPs'   => '1.1.1.3',
           'Endpoint'     => '3.3.3.3:12345',
-          'PresharedKey' => 'output_from_wg_genpsk'
+          'PresharedKey' => 'output_from_wg_genpsk',
         },
       ],
       'saveconfig'  => true,
-      'config_dir'  => '/etc/wireguard'
+      'config_dir'  => '/etc/wireguard',
     }
   end
+
   context 'supported operating systems' do
     on_supported_os.each do |os, facts|
       context "on #{os}" do
@@ -35,23 +36,23 @@ describe 'wireguard::interface', :type => :define do
           facts
         end
 
-        context "wireguard::interface define without any parameters" do
+        context 'wireguard::interface define without any parameters' do
           it do
-            expect { should compile.with_all_deps }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
+            expect { is_expected.to compile.with_all_deps }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
           end
         end
-        context "wireguard::interface define with parameters" do
-          let (:params) do
+        context 'wireguard::interface define with parameters' do
+          let(:params) do
             default_params
           end
+
           it { is_expected.to compile.with_all_deps }
           it do
-            is_expected.to contain_file('/etc/wireguard/wg0.conf').with({
-            'ensure'  => 'present',
-            'owner'   => 'root',
-            'group'   => 'root',
-            'mode'    => '0600',
-            'content' => '# This file is managed by puppet
+            is_expected.to contain_file('/etc/wireguard/wg0.conf').with('ensure' => 'present',
+                                                                        'owner'   => 'root',
+                                                                        'group'   => 'root',
+                                                                        'mode'    => '0600',
+                                                                        'content' => '# This file is managed by puppet
 [Interface]
 Address = 1.1.1.1/24
 Address = 2.2.2.2/24
@@ -70,14 +71,14 @@ AllowedIPs = 1.1.1.3
 Endpoint = 3.3.3.3:12345
 PresharedKey = output_from_wg_genpsk
 
-'
-          })
+')
           end
         end
         context 'wireguard::interface define without an address' do
-          let (:params) do
+          let(:params) do
             default_params.reject { |key, _| key == 'address' }
           end
+
           it { is_expected.to compile.with_all_deps }
           it do
             is_expected.to contain_file('/etc/wireguard/wg0.conf')
@@ -92,12 +93,13 @@ PresharedKey = output_from_wg_genpsk
     describe 'libreswan::define define without any parameters on Solaris/Nexenta' do
       let(:facts) do
         {
-          :osfamily        => 'Solaris',
-          :operatingsystem => 'Nexenta',
+          osfamily: 'Solaris',
+          operatingsystem: 'Nexenta',
         }
       end
-      it do 
-        expect { should compile.with_all_deps }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
+
+      it do
+        expect { is_expected.to compile.with_all_deps }.to raise_error(RSpec::Expectations::ExpectationNotMetError)
       end
     end
   end
