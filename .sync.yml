@@ -1,0 +1,11 @@
+appveyor.yml:
+  delete: true
+.gitlab-ci.yml:
+  delete: true
+hiera.yaml:
+  delete: true
+data/common.yaml:
+  delete: true
+CHANGELOG.md:
+  delete: true
+
